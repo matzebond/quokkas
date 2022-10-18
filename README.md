@@ -14,7 +14,7 @@ These operations are not only easy to use - they are fast, robust and preserve y
 
 For instance, if you wish to standardize your data, you can simply do it like that:
 
-```
+```python
 import quokkas as qk
 df = qk.read_csv('42.csv')
 df = df.scale('standard') 
@@ -33,7 +33,7 @@ include_target=True)`,
 
 However, the user is, of course, able to simply select the columns that they want to transform or ensure that some 
 columns are not transformed:
-```
+```python
 # only 'investor_type' and 'country_of_origin' will be ordinally encoded
 df.encode(kind='ordinal', include=['investor_type', 'country_of_origin'], inplace=True) 
 # the first argument is always 'kind', so we could also use df.encode('ordinal', ...)
@@ -57,7 +57,7 @@ parameters which can be used just like you would use respective sklearn's `Stand
 
 But how could you use the transformed data for, say, training a model? Of course, you could transfer the data to two 
 numpy arrays and go from there:
-```
+```python
 y = df['target_name'].to_numpy()
 X = df.drop('target_name'], axis=1).to_numpy()
 
@@ -69,7 +69,7 @@ model = GradientBoostingClassifier(loss='log_loss', learning_rate=5e-2)
 model.fit(X, y)
 ```
 However, quokkas provides an even easier way to fit a model to the dataframe. You just need to do the following:
-```
+```python
 df.fit(GradientBoostingClassifier(loss='log_loss', learning_rate=5e-2))
 
 # now you can access the trained model via
@@ -96,7 +96,7 @@ preprocess the data, fit a model, and evaluate the performance on the test datas
 performance of the model in a clean way - in particular, we would like to fit all data preprocessors (e.g. scaler) 
 solely on the training data, without looking at the test data. Here is how we do it:
 
-```
+```python
 # load data
 df = qk.read_csv('data.csv')
 
@@ -146,7 +146,7 @@ mse = np.mean((preds - trues)**2)
 So, quite easy indeed. Above we used the `train_test_split` function to split the data into a training and a test set, 
 but what if we wanted to split data into multiple sets, e.g. for validation? For that we can use functions 
 `train_val_test_split` and `split`. Here are some examples:    
-```
+```python
 df = df.sample(10000)
 
 # default sizes for train_val_test_split are (0.8, 0.1, 0.1)
@@ -163,7 +163,7 @@ By default, splitter `kind` is set to `shuffled`, other options include `sequent
 split), `stratified` (preserves the same proportions of examples in each class of the provided column) and `sorted` (the 
 dataframe is first sorted by a provided column, then a sequential split is performed). quokkas also offers a way to 
 perform a k-fold split that is often used for cross-validation:
-```
+```python
 df.targetize('target_return')
 mse = []
 for df_train, df_test in df.kfold(kind='stratified', n_splits=3):
@@ -175,7 +175,7 @@ for df_train, df_test in df.kfold(kind='stratified', n_splits=3):
     mse.append(np.mean((preds - trues)**2))
 ```
 There is also a much easier way to perform cross-validation based on k-fold split in quokkas:
-```
+```python
 def mse(y_true, y_pred):
     return np.mean((y_pred - y_true)**2)
 result = df.cross_validate(estimator=RandomForestRegressor(), scoring=mse, cv=3, target='target_return')
@@ -191,7 +191,7 @@ of column operations, or operations that involve other dataframes. How could we 
 
 Well, nothing is easier! Quokkas `df.map()` method allows us to pipeline any function that we might want to apply to a 
 dataframe. We could use it like that:
-```
+```python
 def add_columns(df):
     df['sales_cash_ratio'] = df['sales'] / df['cash'] 
     df['return'] = df['price'].pct_change()
@@ -210,7 +210,7 @@ preds = df_new.predict()
 ```
 A trained pipeline of a dataframe can be easily saved (as long as all transformations in it can be pickled). This is 
 how we can do that:
-```
+```python
 # save
 df.pipeline.save('path.pkl')
 
@@ -227,7 +227,7 @@ As discussed above, all quokkas-native preprocessing functions (i.e. encode, sca
 trim) are saved in the pipeline, and an arbitrary function on a dataframe can be added to the pipeline via map. Most of 
 the dataframe's member functions that transform the dataframe in some way are also added to the pipeline ("pipelined") 
 automatically. Here is a list of the pipelined functions:
-```
+```python
 df.abs() # this function got an additional inplace parameter compared to pd implementation
 df.aggregate()
 df.apply()
@@ -274,7 +274,7 @@ df.transpose()
 df.unstack()
 ```
 The following member functions preserve the pipeline without adding themselves to it:
-```
+```python
 df.align()
 df.append()
 df.asof()
@@ -302,7 +302,7 @@ become too large. Of course, if the user wants to pipeline these operations, the
 
 If the user does not wish to pipeline a certain operation, they could turn a pipeline of the dataframe off. There are 
 two principal ways to do that:
-```
+```python
 # disable the pipeline
 df.pipeline.disable()
 
@@ -322,7 +322,7 @@ particular, each time `df.iloc[]` is called, the pipeline of the original datafr
 selection operations a little bit slower. There is a solution for that: quokkas provides a functionality to completely 
 lock all pipeline operations via `qk.Lock.global_lock()` (which can be reversed with `qk.Lock.global_unlock()`). There 
 is also a convenient context manager:
-```
+```python
 with qk.Lock.lock():
     df = df.scale('minmax')encode('ordinal').encode_dates(intraweek=True) # none of the operations will be pipelined
 ```
@@ -340,7 +340,7 @@ for instance, the user can visualize the correlation matrix, create scatter plot
 (recommended if the target values are continuous), create density plots of features for each distinct value of the 
 target variable as well as plot missing values for all features (and, if necessary, target). Here is an example of the 
 interface:
-```
+```python
 # correlation plot
 df.plot_correlation(auto=True, include_target=False, absolute=True, style='seaborn')
 
