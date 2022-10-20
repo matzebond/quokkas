@@ -150,7 +150,7 @@ but what if we wanted to split data into multiple sets, e.g. for validation? For
 df = df.sample(10000)
 
 # default sizes for train_val_test_split are (0.8, 0.1, 0.1)
-accepts parameters train_size, val_size and test_size and can infer one of them if the others are specified
+# accepts parameters train_size, val_size and test_size and can infer one of them if the others are specified
 df_train, df_val, df_test = df.train_val_test_split(train_size=0.7, val_size=0.1)
 
 # the same result can be achieved with the split function
